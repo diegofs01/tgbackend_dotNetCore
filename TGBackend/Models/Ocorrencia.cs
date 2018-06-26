@@ -7,15 +7,14 @@ namespace TGBackend.Models
     [Table("ocorrencia")]
     public class Ocorrencia
     {
-        [Key, Column("placaveiculo")]
+        [Key]
+        public int numero { get; set; }
+
+        [Column("placaveiculo")]
         public String placaVeiculo { get; set; }
 
-        [Key]
-        public DateTime data { get; set; }
-
-        [Key]
+        public DateTime data { get; set; }        
         public TimeSpan hora { get; set; }
-
         public String descricao { get; set; }
 
         [Column("tipoocorrencia")]
@@ -23,5 +22,8 @@ namespace TGBackend.Models
 
         [NotMapped]
         public TipoOcorrencia tipoOcorrencia { get; set; }
+
+        [Column("veiculocadastrado")]
+        public Boolean veiculoCadastrado { get; set; }
     }
 }

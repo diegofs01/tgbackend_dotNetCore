@@ -31,7 +31,7 @@ namespace TGBackend.Controllers
             var ocorrencias = _context.ocorrencia.ToList();
 
             Console.WriteLine("");
-            ocorrencias.ForEach(ocorrencia => Console.WriteLine("placa: " + ocorrencia.placaVeiculo + ", data: " + ocorrencia.data.ToShortDateString() + ", hora: " + ocorrencia.hora + ", tipo: " + ocorrencia.idTipoOcorrencia));
+            ocorrencias.ForEach(ocorrencia => Console.WriteLine("numero: " + ocorrencia.numero + ", placa: " + ocorrencia.placaVeiculo + ", data: " + ocorrencia.data.ToShortDateString() + ", hora: " + ocorrencia.hora + ", tipo: " + ocorrencia.idTipoOcorrencia));
             Console.WriteLine("");
 
             ocorrencias.ForEach(ocorrencia =>
@@ -42,14 +42,14 @@ namespace TGBackend.Controllers
             return ocorrencias;
         }
 
-        [HttpGet("{placaVeiculo}", Name = "GetOcorrencia")]
-        public IActionResult GetByDados(string placaVeiculo, [FromQuery] DateTime data, [FromQuery] TimeSpan hora)
+        [HttpGet("{numero}", Name = "GetOcorrencia")]
+        public IActionResult GetByDados(int numero)
         {
             Console.WriteLine("");
-            Console.WriteLine("placa: " + placaVeiculo + ", data: " + data.ToShortDateString() + ", hora: " + hora);
+            Console.WriteLine("numero: " + numero);
             Console.WriteLine("");
 
-            var item = _context.ocorrencia.FirstOrDefault(t => (t.placaVeiculo == placaVeiculo) && (t.data == data) && (t.hora.Equals(hora)));
+            var item = _context.ocorrencia.FirstOrDefault(t => t.numero == numero);
 
             if (item == null)
             {
@@ -69,21 +69,33 @@ namespace TGBackend.Controllers
                 return BadRequest();
             }
 
+            Console.WriteLine("");
+            Console.WriteLine("verificarVeiculo: " + verificarVeiculo(item.placaVeiculo));
+            Console.WriteLine("");
+
+            if (verificarVeiculo(item.placaVeiculo) == 1)
+            {
+                item.veiculoCadastrado = true;
+            } else
+            {
+                item.veiculoCadastrado = false;
+            }
+
             _context.ocorrencia.Add(item);
             _context.SaveChanges();
 
-            return CreatedAtRoute("GetOcorrencia", new { placaVeiculo = item.placaVeiculo, data = item.data, hora = item.hora}, item);
+            return CreatedAtRoute("GetOcorrencia", new { numero = item.numero }, item);
         }
 
-        [HttpPut("{placaVeiculo}")]
-        public IActionResult Update(string placaVeiculo, [FromQuery] DateTime data, [FromQuery] TimeSpan hora, [FromBody] Ocorrencia item)
+        [HttpPut("{numero}")]
+        public IActionResult Update(int numero, [FromBody] Ocorrencia item)
         {
-            if (item == null || item.placaVeiculo != placaVeiculo || item.data != data || !(item.hora.Equals(hora)))
+            if (item == null || item.numero != numero)
             {
                 return BadRequest();
             }
 
-            var todo = _context.ocorrencia.FirstOrDefault(t => (t.placaVeiculo == placaVeiculo) && (t.data == data) && (t.hora.Equals(hora)));
+            var todo = _context.ocorrencia.FirstOrDefault(t => t.numero == numero);
             if (todo == null)
             {
                 return NotFound();
@@ -98,10 +110,10 @@ namespace TGBackend.Controllers
             return new NoContentResult();
         }
 
-        [HttpDelete("{placaVeiculo}")]
-        public IActionResult Delete(string placaVeiculo, [FromQuery] DateTime data, [FromQuery] TimeSpan hora)
+        [HttpDelete("{numero}")]
+        public IActionResult Delete(int numero)
         {
-            var todo = _context.ocorrencia.FirstOrDefault(t => (t.placaVeiculo == placaVeiculo) && (t.data == data) && (t.hora.Equals(hora)));
+            var todo = _context.ocorrencia.FirstOrDefault(t => t.numero == numero);
             if (todo == null)
             {
                 return NotFound();
@@ -111,6 +123,18 @@ namespace TGBackend.Controllers
             _context.SaveChanges();
 
             return new NoContentResult();
+        }
+
+        public int verificarVeiculo(String placa)
+        {
+            int resultado = 0;
+
+            var veiculo = _context.veiculo.Find(placa);
+
+            if (veiculo != null)
+                resultado = 1;
+
+            return resultado;
         }
     }
 }

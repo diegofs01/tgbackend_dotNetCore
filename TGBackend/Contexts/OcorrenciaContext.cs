@@ -9,14 +9,8 @@ namespace TGBackend.Contexts
         {
         }
 
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            builder.Entity<Ocorrencia>().HasKey(ocorrencia => new {
-                ocorrencia.placaVeiculo, ocorrencia.data, ocorrencia.hora
-            });
-        }
-
         public DbSet<Ocorrencia> ocorrencia { get; set; }
         public DbSet<TipoOcorrencia> tipoOcorrencia { get; set; }
+        public DbSet<Veiculo> veiculo { get; set; }
     }
 }
